@@ -31,5 +31,6 @@ dist-ssr
 
 # Build outputs
 build
+# docs folder is used for GitHub Pages, don't ignore it
 *.tsbuildinfo
 
