@@ -216,11 +216,12 @@ function VideoComponent({ onHeightChange }: { onHeightChange?: (height: number) 
           maxHeight: '100%',
           objectFit: 'cover',
           objectPosition: 'center',
-          borderRadius: '0 0 100px 100px',
           pointerEvents: 'none',
           display: 'block',
           opacity: 1,
-          zIndex: 2
+          zIndex: 2,
+          maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)'
         }}
       >
         <source src="/Hero-video.mp4" type="video/mp4" />
@@ -237,10 +238,11 @@ function VideoComponent({ onHeightChange }: { onHeightChange?: (height: number) 
             transform: 'translate(-50%, -50%)',
             width: dimensions.width > 0 ? `${dimensions.width}px` : '80%',
             height: `${dimensions.height}px`,
-            borderRadius: '0 0 100px 100px',
             overflow: 'hidden',
             pointerEvents: 'auto',
-            zIndex: 3
+            zIndex: 3,
+            maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)'
           }}
         >
           <VideoWaterEffect
@@ -266,9 +268,10 @@ function VideoComponent({ onHeightChange }: { onHeightChange?: (height: number) 
             height: `${dimensions.height}px`,
             objectFit: 'cover',
             objectPosition: 'center',
-            borderRadius: '0 0 100px 100px',
             pointerEvents: 'none',
-            zIndex: 2
+            zIndex: 2,
+            maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)'
           }}
         />
       )}
@@ -936,13 +939,37 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
           width: '100%',
           minHeight: heroHeight ? `${heroHeight}px` : '80vh',
           height: heroHeight ? `${heroHeight}px` : '80vh',
-          overflow: 'hidden',
-          borderRadius: '0 0 100px 100px'
+          overflow: 'hidden'
         }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
+        {/* 배경 비디오 */}
+        <video
+          src="/background.mp4"
+          muted
+          playsInline
+          preload="metadata"
+          onLoadedMetadata={(e) => {
+            const video = e.currentTarget;
+            video.currentTime = 0;
+            video.pause();
+          }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center',
+            zIndex: 0,
+            filter: 'blur(15px)',
+            transform: 'scale(1.1)',
+            borderRadius: '0 0 100px 100px'
+          }}
+        />
 
         {/* 메인 영상 */}
         <motion.div
@@ -953,7 +980,6 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
             width: '100%',
             height: '100%',
             overflow: 'hidden',
-            borderRadius: '0 0 100px 100px',
             pointerEvents: 'none',
             display: 'flex',
             justifyContent: 'center',

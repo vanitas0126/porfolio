@@ -252,9 +252,9 @@ export function VideoWaterEffect({ videoElement }: VideoWaterEffectProps) {
     if (!parent) return;
 
     const rect = parent.getBoundingClientRect();
-    // 성능 최적화: 해상도를 절반으로 줄임 (픽셀 밀도 감소)
-    const width = Math.floor(rect.width * 0.5);
-    const height = Math.floor(rect.height * 0.5);
+    // 성능 최적화: 해상도를 60%로 설정 (화질과 성능 균형)
+    const width = Math.floor(rect.width * 0.6);
+    const height = Math.floor(rect.height * 0.6);
     
     if (width === 0 || height === 0) return;
 
@@ -464,9 +464,9 @@ export function VideoWaterEffect({ videoElement }: VideoWaterEffectProps) {
       if (!parent) return;
       
       const rect = parent.getBoundingClientRect();
-      // 성능 최적화: 해상도를 절반으로 줄임
-      const width = Math.floor(rect.width * 0.5);
-      const height = Math.floor(rect.height * 0.5);
+      // 성능 최적화: 해상도를 60%로 설정 (화질과 성능 균형)
+      const width = Math.floor(rect.width * 0.6);
+      const height = Math.floor(rect.height * 0.6);
       
       if (width === 0 || height === 0) return;
       
