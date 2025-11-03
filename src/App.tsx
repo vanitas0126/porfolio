@@ -221,9 +221,9 @@ function VideoComponent({ onHeightChange }: { onHeightChange?: (height: number) 
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%) translateZ(0)',
-          width: dimensions.width > 0 ? `${dimensions.width * 1.2}px` : '95%',
-          height: dimensions.height > 0 ? `${dimensions.height * 1.2}px` : 'auto',
-          maxWidth: '120%',
+          width: '80%',
+          height: 'auto',
+          maxWidth: '1180px',
           maxHeight: '100%',
           objectFit: 'cover',
           objectPosition: 'center',
@@ -255,13 +255,13 @@ function VideoComponent({ onHeightChange }: { onHeightChange?: (height: number) 
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%) translateZ(0)',
-            width: dimensions.width > 0 ? `${dimensions.width * 1.2}px` : '95%',
-            height: `${dimensions.height * 1.2}px`,
+            width: '80%',
+            height: 'auto',
             objectFit: 'cover',
             objectPosition: 'center',
             pointerEvents: 'none',
             zIndex: 2,
-            maxWidth: '120%',
+            maxWidth: '1180px',
             borderRadius: '0 0 100px 100px'
           }}
         />
@@ -460,6 +460,25 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // 페이지 하단 도달 시 푸터 비디오 강제 재생 보조 로직
+  useEffect(() => {
+    const handleBottomPlay = () => {
+      const nearBottom = window.innerHeight + window.scrollY >= (document.documentElement.scrollHeight - 50);
+      if (nearBottom && footerVideoRef.current) {
+        const video = footerVideoRef.current;
+        video.loop = true;
+        if (video.paused) {
+          const p = video.play();
+          if (p && typeof p.catch === 'function') {
+            p.catch(() => {});
+          }
+        }
+      }
+    };
+    window.addEventListener('scroll', handleBottomPlay, { passive: true });
+    return () => window.removeEventListener('scroll', handleBottomPlay);
   }, []);
 
   // 푸터 섹션 뷰포트 감지

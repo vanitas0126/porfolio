@@ -204,7 +204,10 @@ export default function About({ onNavigateHome }: AboutProps) {
               }}
             >
               <button 
-                onClick={onNavigateHome}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsWorkHovered((v) => !v);
+                }}
                 style={{ 
                   color: 'rgba(255, 217, 0, 0.6)', 
                   textDecoration: 'none', 
@@ -229,6 +232,7 @@ export default function About({ onNavigateHome }: AboutProps) {
                   transition={{ duration: 0.2, ease: "easeOut" }}
                   onMouseEnter={() => setIsWorkHovered(true)}
                   onMouseLeave={() => setIsWorkHovered(false)}
+                  onClick={(e) => { e.stopPropagation(); }}
                   style={{
                     position: 'absolute',
                     top: '-10px',
@@ -255,12 +259,10 @@ export default function About({ onNavigateHome }: AboutProps) {
                   ].map((project, idx) => (
                     <button
                       key={idx}
-                      onClick={() => {
-                        onNavigateHome?.();
-                        setTimeout(() => {
-                          const element = document.getElementById('work');
-                          element?.scrollIntoView({ behavior: 'smooth' });
-                        }, 100);
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsWorkHovered(false);
                       }}
                       style={{
                         display: 'block',
