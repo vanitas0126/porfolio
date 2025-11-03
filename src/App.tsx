@@ -7,6 +7,17 @@ import { ProjectDetail } from './components/ProjectDetail';
 import { VideoWaterEffect } from './components/VideoWaterEffect';
 import { motion, useInView, useScroll, useTransform, useSpring } from 'motion/react';
 
+// Unicorn Studio 타입 정의
+declare global {
+  interface Window {
+    UnicornStudio?: {
+      isInitialized: boolean;
+      init: (options: { includeLogo: boolean }) => void;
+      [key: string]: any;
+    };
+  }
+}
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
@@ -209,10 +220,10 @@ function VideoComponent({ onHeightChange }: { onHeightChange?: (height: number) 
           position: 'absolute',
           top: '50%',
           left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: dimensions.width > 0 ? `${dimensions.width}px` : '80%',
-          height: dimensions.height > 0 ? `${dimensions.height}px` : 'auto',
-          maxWidth: '100%',
+          transform: 'translate(-50%, -50%) translateZ(0)',
+          width: dimensions.width > 0 ? `${dimensions.width * 1.2}px` : '95%',
+          height: dimensions.height > 0 ? `${dimensions.height * 1.2}px` : 'auto',
+          maxWidth: '120%',
           maxHeight: '100%',
           objectFit: 'cover',
           objectPosition: 'center',
@@ -220,36 +231,16 @@ function VideoComponent({ onHeightChange }: { onHeightChange?: (height: number) 
           display: 'block',
           opacity: 1,
           zIndex: 2,
-          maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)'
+          borderRadius: '0 0 100px 100px',
+          imageRendering: 'auto',
+          willChange: 'transform',
+          backfaceVisibility: 'hidden'
         }}
       >
         <source src="/Hero-video.mp4" type="video/mp4" />
       </video>
       
-      {/* 물 효과 오버레이 - 모바일에서는 비활성화 */}
-      {videoRef.current && dimensions.width > 0 && dimensions.height > 0 && !isMobile && (
-        <div 
-          ref={overlayRef}
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: dimensions.width > 0 ? `${dimensions.width}px` : '80%',
-            height: `${dimensions.height}px`,
-            overflow: 'hidden',
-            pointerEvents: 'auto',
-            zIndex: 3,
-            maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)'
-          }}
-        >
-          <VideoWaterEffect
-            videoElement={videoRef.current}
-          />
-        </div>
-      )}
+      {/* 물 효과 제거 */}
       
       {/* 모바일에서는 비디오만 표시 */}
       {isMobile && videoRef.current && dimensions.width > 0 && dimensions.height > 0 && (
@@ -263,15 +254,15 @@ function VideoComponent({ onHeightChange }: { onHeightChange?: (height: number) 
             position: 'absolute',
             top: '50%',
             left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: dimensions.width > 0 ? `${dimensions.width}px` : '80%',
-            height: `${dimensions.height}px`,
+            transform: 'translate(-50%, -50%) translateZ(0)',
+            width: dimensions.width > 0 ? `${dimensions.width * 1.2}px` : '95%',
+            height: `${dimensions.height * 1.2}px`,
             objectFit: 'cover',
             objectPosition: 'center',
             pointerEvents: 'none',
             zIndex: 2,
-            maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)'
+            maxWidth: '120%',
+            borderRadius: '0 0 100px 100px'
           }}
         />
       )}
@@ -282,26 +273,46 @@ function VideoComponent({ onHeightChange }: { onHeightChange?: (height: number) 
 // 전문 분야 아이템 컴포넌트 (비디오 포함)
 function ExpertiseItem({ skill, videoNumber, variants }: { skill: string; videoNumber: number; variants: any }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
+  const [isInView, setIsInView] = useState(false);
 
+  // 뷰포트 감지
   useEffect(() => {
-    const video = videoRef.current;
-    if (video) {
-      // 비디오 로드 후 첫 프레임에 정지
-      const handleCanPlay = () => {
-        if (video && !isHovered) {
-          video.currentTime = 0;
-          video.pause();
-        }
-      };
-      
-      video.addEventListener('canplay', handleCanPlay);
-      
-      return () => {
-        video.removeEventListener('canplay', handleCanPlay);
-      };
-    }
-  }, [isHovered]);
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsInView(true);
+            // 뷰포트에 들어왔을 때 비디오 재생
+            if (videoRef.current && !hasPlayedOnce && !isHovered) {
+              const video = videoRef.current;
+              video.loop = false;
+              if (video.readyState >= 2) {
+                video.play().catch((err) => {
+                  console.error('Video play error:', err);
+                });
+              }
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '50px'
+      }
+    );
+
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hasPlayedOnce, isHovered]);
 
   return (
     <motion.div 
@@ -314,6 +325,7 @@ function ExpertiseItem({ skill, videoNumber, variants }: { skill: string; videoN
       onMouseEnter={() => {
         setIsHovered(true);
         if (videoRef.current) {
+          videoRef.current.loop = true;
           videoRef.current.play().catch((err) => {
             console.error('Video play error:', err);
           });
@@ -322,30 +334,33 @@ function ExpertiseItem({ skill, videoNumber, variants }: { skill: string; videoN
       onMouseLeave={() => {
         setIsHovered(false);
         if (videoRef.current) {
+          videoRef.current.loop = false;
           videoRef.current.pause();
           videoRef.current.currentTime = 0;
         }
       }}
     >
-      <div style={{
-        position: 'relative',
-        width: '70%',
-        paddingBottom: '70%',
-        margin: '0 auto',
-        background: 'transparent',
-        borderRadius: '20px',
-        marginBottom: 'clamp(24px, 5vw, 48px)',
-        overflow: 'hidden',
-        transition: 'all 0.8s cubic-bezier(0.19, 1, 0.22, 1)'
-      }}>
-        {/* 비디오 - 기본적으로 첫 프레임 표시, 호버 시 재생 */}
+      <div 
+        ref={containerRef}
+        style={{
+          position: 'relative',
+          width: '70%',
+          paddingBottom: '70%',
+          margin: '0 auto',
+          background: 'transparent',
+          borderRadius: '20px',
+          marginBottom: 'clamp(24px, 5vw, 48px)',
+          overflow: 'hidden',
+          transition: 'all 0.8s cubic-bezier(0.19, 1, 0.22, 1)'
+        }}
+      >
+        {/* 비디오 - 처음 한 번 재생 후 정지, 호버 시 재생 */}
         <video
           ref={videoRef}
-          src={`/icon${videoNumber}.mp4`}
-          loop
+          src={`${import.meta.env.BASE_URL}icon${videoNumber}.mp4`}
           muted
           playsInline
-          preload="metadata"
+          preload="auto"
           style={{
             position: 'absolute',
             top: 0,
@@ -357,16 +372,38 @@ function ExpertiseItem({ skill, videoNumber, variants }: { skill: string; videoN
             pointerEvents: 'none',
             transition: 'opacity 0.3s ease'
           }}
-          onCanPlay={() => {
-            if (videoRef.current && !isHovered) {
-              videoRef.current.currentTime = 0;
-              videoRef.current.pause();
+          onLoadedMetadata={() => {
+            if (videoRef.current) {
+              videoRef.current.loop = false;
+              // 뷰포트에 이미 들어와 있고 아직 재생 안 했으면 재생
+              if (isInView && !hasPlayedOnce && !isHovered && videoRef.current.paused) {
+                setTimeout(() => {
+                  if (videoRef.current && isInView && !hasPlayedOnce && !isHovered) {
+                    videoRef.current.play().catch((err) => {
+                      console.error('Video play error:', err);
+                    });
+                  }
+                }, 200);
+              }
             }
           }}
-          onLoadedData={() => {
-            if (videoRef.current && !isHovered) {
-              videoRef.current.currentTime = 0;
-              videoRef.current.pause();
+          onCanPlay={() => {
+            if (videoRef.current) {
+              videoRef.current.loop = false;
+              // 뷰포트에 들어와 있고 아직 재생 안 했으면 재생
+              if (isInView && !hasPlayedOnce && !isHovered && videoRef.current.paused) {
+                videoRef.current.play().catch((err) => {
+                  console.error('Video play error:', err);
+                });
+              }
+            }
+          }}
+          onEnded={() => {
+            if (!isHovered) {
+              setHasPlayedOnce(true);
+              if (videoRef.current) {
+                videoRef.current.pause();
+              }
             }
           }}
           onError={(e) => {
@@ -398,6 +435,11 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const [videoHeight, setVideoHeight] = useState<number | null>(null);
   const [heroHeight, setHeroHeight] = useState<number | null>(null);
+  const footerSectionRef = useRef<HTMLElement>(null);
+  const footerVideoRef = useRef<HTMLVideoElement>(null);
+  const [footerHeight, setFooterHeight] = useState<number | null>(null);
+  const [isFooterInView, setIsFooterInView] = useState(false);
+  const heroEffectContainerRef = useRef<HTMLDivElement>(null);
 
   // Smooth scroll progress tracking
   const { scrollYProgress } = useScroll();
@@ -418,6 +460,125 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // 푸터 섹션 뷰포트 감지
+  useEffect(() => {
+    const footerSection = footerSectionRef.current;
+    if (!footerSection) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsFooterInView(true);
+            // 비디오 자동 재생 (무한 반복)
+            const tryPlay = () => {
+              if (footerVideoRef.current) {
+                const video = footerVideoRef.current;
+                video.loop = true;
+                if (video.paused) {
+                  const playPromise = video.play();
+                  if (playPromise !== undefined) {
+                    playPromise.catch(err => {
+                      console.error('Footer video play error:', err);
+                    });
+                  }
+                }
+              }
+            };
+            tryPlay();
+            setTimeout(tryPlay, 200);
+            setTimeout(tryPlay, 500);
+          } else {
+            setIsFooterInView(false);
+            // 뷰포트를 벗어나면 일시정지
+            if (footerVideoRef.current) {
+              footerVideoRef.current.pause();
+            }
+          }
+        });
+      },
+      {
+        threshold: 0,
+        rootMargin: '150px'
+      }
+    );
+
+    observer.observe(footerSection);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  // Unicorn Studio 효과 초기화
+  useEffect(() => {
+    const container = heroEffectContainerRef.current;
+    if (!container || typeof window === 'undefined') return;
+
+    const initEffect = () => {
+      if (window.UnicornStudio && window.UnicornStudio.isInitialized && container) {
+        try {
+          const effectId = "c6k24zO7a5YYpZ33cvZM";
+          
+          // 방법 1: data-unicorn-id 사용 시도
+          container.setAttribute('data-unicorn-id', effectId);
+          
+          // 방법 2: 직접 API 호출 시도
+          const US = window.UnicornStudio as any;
+          
+          // 여러 가능한 API 메서드 시도
+          if (US.render) {
+            US.render(container, effectId);
+          } else if (US.create) {
+            US.create(container, effectId);
+          } else if (US.load) {
+            US.load(effectId, container);
+          }
+          
+          // MutationObserver로 DOM 변화 감지하여 Unicorn Studio가 초기화하도록 유도
+          const observer = new MutationObserver(() => {
+            // Unicorn Studio가 자동으로 처리할 수 있도록 대기
+          });
+          
+          observer.observe(container, {
+            attributes: true,
+            childList: true,
+            subtree: true
+          });
+          
+          setTimeout(() => {
+            observer.disconnect();
+          }, 2000);
+          
+        } catch (err) {
+          console.error('Failed to initialize Unicorn Studio effect:', err);
+        }
+      }
+    };
+
+    // Unicorn Studio 로드 대기
+    const checkUnicornStudio = () => {
+      if (window.UnicornStudio && window.UnicornStudio.isInitialized) {
+        setTimeout(initEffect, 300);
+      } else if (window.UnicornStudio) {
+        // 아직 초기화되지 않았으면 다시 시도
+        setTimeout(checkUnicornStudio, 100);
+      } else {
+        // Unicorn Studio가 아직 로드되지 않았으면 대기
+        setTimeout(checkUnicornStudio, 100);
+      }
+    };
+
+    // 처음 시도
+    setTimeout(checkUnicornStudio, 500);
+
+    return () => {
+      if (container) {
+        container.removeAttribute('data-unicorn-id');
+      }
+    };
   }, []);
 
   // Animation variants - Spring-based physics
@@ -863,9 +1024,9 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
                   boxShadow: '0 8px 32px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 217, 0, 0.2)'
                 }}>
                 {[
-                  { name: 'Railway Redesign', projectId: 'railway-redesign' },
                   { name: 'HourTaste', projectId: 'hourtaste' },
                   { name: 'NOOK', projectId: 'nook' },
+                  { name: 'Railway Redesign', projectId: 'railway-redesign' },
                   { name: "A Cat's Peaceful Day", projectId: 'cat-peaceful-day' }
                 ].map((project, idx) => (
                   <a
@@ -939,34 +1100,26 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
           width: '100%',
           minHeight: heroHeight ? `${heroHeight}px` : '80vh',
           height: heroHeight ? `${heroHeight}px` : '80vh',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          borderRadius: '0 0 100px 100px'
         }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        {/* 배경 비디오 */}
-        <video
-          src="/background.mp4"
-          muted
-          playsInline
-          preload="metadata"
-          onLoadedMetadata={(e) => {
-            const video = e.currentTarget;
-            video.currentTime = 0;
-            video.pause();
-          }}
+        {/* 배경 비디오 - 블러 제거 */}
+
+        {/* Unicorn Studio 효과 - 비디오 위에 */}
+        <div
+          ref={heroEffectContainerRef}
           style={{
             position: 'absolute',
-            top: 0,
-            left: 0,
+            inset: 0,
+            zIndex: 3,
             width: '100%',
             height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center',
-            zIndex: 0,
-            filter: 'blur(15px)',
-            transform: 'scale(1.1)',
+            pointerEvents: 'none',
+            overflow: 'hidden',
             borderRadius: '0 0 100px 100px'
           }}
         />
@@ -1009,7 +1162,7 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
             {/* 비디오 - 꽉 차게 */}
             <div 
               ref={videoContainerRef}
-              style={{
+            style={{
                 width: '100%',
                 height: '100%',
                 maxWidth: '100%',
@@ -1033,10 +1186,10 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
 
 
         <div style={{
-          position: 'absolute',
-          inset: 0,
+              position: 'absolute',
+              inset: 0,
           zIndex: 3,
-          width: '100%',
+              width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'flex-end',
@@ -1051,35 +1204,35 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
             margin: '0 auto',
             paddingLeft: '2.25rem',
             paddingRight: '2.25rem'
-          }}>
-            <motion.div 
-              className="hero-content" 
-              style={{
+        }}>
+          <motion.div 
+            className="hero-content" 
+            style={{
                 position: 'relative',
-                width: '100%',
+              width: '100%',
                 height: '100%'
-              }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-            >
-              <motion.div 
-                className="hero-main-text" 
-                style={{ 
+          >
+            <motion.div 
+              className="hero-main-text" 
+              style={{ 
                   position: 'absolute',
                   left: '2.25rem',
                   bottom: '-20px',
-                  y: useTransform(smoothProgress, [0, 0.3], [0, -30])
-                }}
-                initial={{ opacity: 0, x: -80 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ 
-                  type: "spring",
+                y: useTransform(smoothProgress, [0, 0.3], [0, -30])
+              }}
+              initial={{ opacity: 0, x: -80 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ 
+                type: "spring",
                   stiffness: 100,
                   damping: 25,
                   delay: 0.2
-                }}
-              >
+              }}
+            >
               <h1 style={{
                 fontSize: 'clamp(32px, 4.5vw, 70px)',
                 fontWeight: 600,
@@ -1098,24 +1251,24 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
               </h1>
             </motion.div>
             
-              <motion.div 
-                className="hero-chinese" 
-                style={{ 
+            <motion.div 
+              className="hero-chinese" 
+              style={{ 
                   position: 'absolute',
                   right: '2.25rem',
                   bottom: '-20px',
-                  textAlign: 'right',
-                  y: useTransform(smoothProgress, [0, 0.3], [0, -20])
-                }}
-                initial={{ opacity: 0, x: 80 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ 
-                  type: "spring",
+                textAlign: 'right',
+                y: useTransform(smoothProgress, [0, 0.3], [0, -20])
+              }}
+              initial={{ opacity: 0, x: 80 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ 
+                type: "spring",
                   stiffness: 100,
                   damping: 25,
                   delay: 0.3
-                }}
-              >
+              }}
+            >
               <AnimatedDots 
                 baseText="超集中"
                 style={{
@@ -1133,8 +1286,8 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
                   fontFamily: '"Noto Serif HK", serif'
                 }}
               />
-              </motion.div>
             </motion.div>
+          </motion.div>
           </div>
         </div>
       </motion.section>
@@ -1188,15 +1341,6 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
             {/* Project Cards */}
             {[
               { 
-                name: 'Railway',
-                desc: '',
-                category: 'Railway Redesign',
-                tags: 'Web Design / UX/UI',
-                gradient: 'rgba(255, 255, 255, 0.06)',
-                neonColor: '#3b82f6',
-                projectId: 'railway-redesign'
-              },
-              { 
                 name: 'HourTaste',
                 desc: '',
                 category: 'HourTaste',
@@ -1213,6 +1357,15 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
                 gradient: 'linear-gradient(135deg, rgba(52, 115, 92, 0.82) 0%, rgba(16, 92, 70, 0.85) 50%, rgba(1, 51, 33, 0.88) 100%)',
                 neonColor: '#10b981',
                 projectId: 'nook'
+              },
+              { 
+                name: 'Railway',
+                desc: '',
+                category: 'Railway Redesign',
+                tags: 'Web Design / UX/UI',
+                gradient: 'rgba(255, 255, 255, 0.06)',
+                neonColor: '#3b82f6',
+                projectId: 'railway-redesign'
               },
               { 
                 name: 'A Cat\'s Peaceful Day',
@@ -1395,12 +1548,14 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
         </section>
       </SectionWithAnimation>
 
-      {/* CTA Section with Background Image */}
+      {/* CTA Section with Footer Video Background */}
       <SectionWithAnimation>
-        <section style={{
+        <section 
+          ref={footerSectionRef}
+          style={{
           position: 'relative',
-          height: '80vh',
-          minHeight: '80vh',
+            height: footerHeight ? `${footerHeight}px` : '80vh',
+            minHeight: footerHeight ? `${footerHeight}px` : '80vh',
           width: '100%',
           overflow: 'hidden',
           display: 'flex',
@@ -1408,37 +1563,129 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
           justifyContent: 'flex-start',
           paddingTop: '80px',
           borderRadius: '100px 100px 0 0'
-        }}>
-          {/* Background Image */}
-          <div style={{
+          }}
+        >
+          {/* 배경 비디오 - 블러 제거 */}
+
+          {/* 메인 영상 */}
+          <motion.div
+            style={{
             position: 'absolute',
             inset: 0,
-            zIndex: 0,
+              zIndex: 1,
+              width: '100%',
+              height: '100%',
+              overflow: 'hidden',
+              pointerEvents: 'none',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
             borderRadius: '100px 100px 0 0'
-          }}>
-            <ImageWithFallback
-              src="https://images.unsplash.com/photo-1645724298072-ec933da5b47f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGRhcmslMjBncmFkaWVudHxlbnwxfHx8fDE3NjE2ODYxMTh8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-              alt="Background"
-              style={{
+            }}
+            className="footer-video-container"
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1
+            }}
+            transition={{ 
+              duration: 0.8, 
+              delay: 0.3,
+              ease: [0.22, 1, 0.36, 1]
+            }}
+          >
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: 0
+            }}>
+              <div style={{
                 width: '100%',
                 height: '100%',
+                maxWidth: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                <video
+                  ref={footerVideoRef}
+                  src="/footer-video.mp4"
+                  muted
+                  playsInline
+                  loop
+                  preload="auto"
+                  onLoadedMetadata={(e) => {
+                    const video = e.currentTarget;
+                    const aspectRatio = video.videoWidth / video.videoHeight;
+                    const containerWidth = Math.min(window.innerWidth, 1180);
+                    const videoWidth = containerWidth * 0.8; // 80% width
+                    const videoHeight = videoWidth / aspectRatio;
+                    setFooterHeight(videoHeight + 80);
+                    if (footerSectionRef.current) {
+                      footerSectionRef.current.style.height = `${videoHeight + 80}px`;
+                    }
+                    video.loop = true;
+                    // 메타데이터 로드되면 자동 재생 시도
+                    setTimeout(() => {
+                      if (video.paused) {
+                        video.play().catch(() => {});
+                      }
+                    }, 300);
+                  }}
+                  onCanPlay={(e) => {
+                    const video = e.currentTarget;
+                    video.loop = true;
+                    // 재생 가능하면 자동 재생
+                    if (video.paused) {
+                      video.play().catch(() => {});
+                    }
+                  }}
+                  onLoadedData={(e) => {
+                    const video = e.currentTarget;
+                    video.loop = true;
+                    // 데이터 로드되면 자동 재생
+                    if (video.paused) {
+                      video.play().catch(() => {});
+                    }
+                  }}
+                  onPlaying={(e) => {
+                    // 재생이 시작되면 loop 확실히 설정
+                    e.currentTarget.loop = true;
+                  }}
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%) translateZ(0)',
+                    width: '80%',
+                    height: 'auto',
+                    maxWidth: '1180px',
+                    maxHeight: '100%',
                 objectFit: 'cover',
-                borderRadius: '100px 100px 0 0'
-              }}
-            />
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0.9) 100%)',
-              borderRadius: '100px 100px 0 0'
-            }} />
+                    objectPosition: 'center',
+                    pointerEvents: 'none',
+                    display: 'block',
+                      opacity: 1,
+                      zIndex: 2,
+                      borderRadius: '100px 100px 0 0',
+                      imageRendering: 'auto',
+                      willChange: 'transform',
+                      backfaceVisibility: 'hidden'
+                    }}
+                  />
           </div>
+            </div>
+          </motion.div>
 
           {/* CTA Content */}
           <motion.div 
             style={{
               position: 'relative',
-              zIndex: 1,
+              zIndex: 3,
               textAlign: 'right',
               padding: '0 60px 0',
               maxWidth: '1180px',
@@ -1535,25 +1782,35 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
             </a>
           </motion.div>
 
-          {/* Footer Overlapping Image */}
-          <footer style={{
-            position: 'relative',
-            zIndex: 2,
-            padding: '40px 60px 0',
+          {/* Footer Content */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 3,
+            width: '100%',
+            height: '100%',
             display: 'flex',
-            flexDirection: 'column',
-            gap: '9px',
-            marginTop: '40px',
+            alignItems: 'flex-end',
+            paddingBottom: 'clamp(40px, 8vh, 80px)',
+            justifyContent: 'center',
+            pointerEvents: 'none'
+          }}>
+            <div style={{
             maxWidth: '1180px',
-            margin: '40px auto 0',
-            width: '100%'
+              width: '100%',
+              padding: '0 clamp(40px, 8vw, 120px)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '9px'
           }}>
             <div className="footer-content" style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+                width: '100%',
               paddingBottom: '0',
-              borderBottom: 'none'
+                borderBottom: 'none',
+                pointerEvents: 'auto'
             }}>
               <p className="footer-logo" style={{
                 fontSize: '14px',
@@ -1576,16 +1833,17 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
                 transition: 'color 0.3s ease'
               }}
               onMouseEnter={(e) => {
-                e.target.style.color = '#fff';
+                  e.currentTarget.style.color = '#fff';
               }}
               onMouseLeave={(e) => {
-                e.target.style.color = 'rgba(255, 255, 255, 0.7)';
+                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
               }}
               >
                 allisvanitas@gmail.com
               </a>
             </div>
-          </footer>
+            </div>
+          </div>
         </section>
       </SectionWithAnimation>
 

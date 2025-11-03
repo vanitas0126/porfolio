@@ -1,0 +1,6 @@
+{
+  "buildCommand": "VERCEL=true npm run build",
+  "outputDirectory": "docs",
+  "framework": "vite"
+}
+

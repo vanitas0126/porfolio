@@ -28,32 +28,24 @@ const projectsData: { [key: string]: ProjectData } = {
     title: 'Railway Redesign',
     heroImage: 'modern train station platform',
     myRole: ['Lead UX/UI Designer', 'Web Designer', 'User Research'],
-    team: ['1 Product Manager', '3 Designers', '5 Developers', '1 QA Engineer'],
-    duration: '5개월 (2024.01 - 2024.06)',
+    team: ['3명 (기획 공동, 디자인 1명)'],
+    duration: '3개월',
     industry: 'Transportation / Public Service',
-    summary: '한국철도공사의 웹사이트 및 예매 시스템을 현대적인 사용자 경험으로 재설계한 프로젝트입니다. 복잡하고 낡은 인터페이스를 직관적이고 접근성 높은 디자인으로 전환하여, 모든 연령대의 사용자가 쉽게 이용할 수 있는 서비스를 만들었습니다.',
+    summary: 'NRC 웹사이트에서 기업/투자자 정보(B2B)와 승객 이용 정보(B2C)가 한 화면에 섞여 있던 문제를 해결하기 위해, 철도 산업의 기본 원칙인 상하 분리를 사이트 구조에 반영한 프로젝트입니다.\n승객 포털과 기업 사이트를 분리하여 각 사용자 그룹의 목적에 맞는 접근 경로를 제공했습니다.',
     sections: [
       {
-        title: '프로젝트 배경',
-        content: '기존 코레일 웹사이트는 20년 가까이 된 레거시 시스템으로, 복잡한 네비게이션과 일관성 없는 UI로 인해 사용자들이 원하는 정보를 찾기 어려웠습니다. 특히 고령 사용자와 외국인 관광객들의 불편이 컸으며, 모바일 최적화가 되어 있지 않아 모바일 이용률이 20%에 불과했습니다.',
+        title: '문제 (WHY)',
+        content: 'NRC 웹사이트는 기업/투자자 정보(B2B)와 승객 이용 정보(B2C)가 한 화면에 섞여 있었습니다.\n철도 산업의 기본 원칙인 상하 분리(인프라/운영 분리)가 사이트 구조에 반영되지 않은 상태였습니다.',
       },
       {
-        title: 'User Research & Insights',
-        content: '전국 주요 역에서 100명 이상의 사용자를 대상으로 인터뷰와 관찰 조사를 진행했습니다. 핵심 인사이트는 "사람들은 복잡한 옵션이 아닌 빠르고 확실한 예매를 원한다"였습니다. 출퇴근 시간대에는 1분 이내 예매 완료를 원했으며, 좌석 선택 화면의 복잡함이 가장 큰 pain point였습니다.',
-        image: 'user research sticky notes'
+        title: '근거 (EVIDENCE)',
+        content: '승객은 실행 기능을 가장 먼저 찾습니다 (예매 66.7% / 요금 54.5% / 운행정보 51.5%).\n독일/한국 등 국철 사이트 사례에서도 승객 포털과 기업 사이트가 명확히 분리되어 있습니다.',
+        image: 'user research data global comparison'
       },
       {
-        title: 'Design System',
-        content: '일관성 있는 사용자 경험을 위해 코레일만의 디자인 시스템을 구축했습니다. 접근성을 최우선으로 하여 WCAG 2.1 AA 등급을 준수하고, 색맹 사용자를 위한 컬러 대비 개선, 큰 터치 영역(최소 44pt), 명확한 버튼 레이블을 적용했습니다. 타이포그래피는 가독성이 높은 Pretendard를 선택했습니다.',
-        image: 'design system components'
-      },
-      {
-        title: 'Key Features',
-        content: '• 스마트 디폴트: 자주 이용하는 노선과 선호 좌석을 학습하여 자동 입력\n• 원클릭 예매: 즐겨찾기한 노선은 1번의 클릭으로 즉시 예매\n• 시각적 좌석 선택: 실제 열차 내부를 시각화하여 직관적으로 선택 가능\n• 반응형 디자인: 모바일, 태블릿, 데스크톱 모든 환경에 최적화\n• 다국어 지원: 한국어, 영어, 중국어, 일본어 완벽 지원',
-      },
-      {
-        title: 'Results & Impact',
-        content: '리뉴얼 후 월간 방문자 수 42% 증가, 예매 완료율 35% 향상, 모바일 이용률 20%→58%로 상승했습니다. 특히 고객 만족도가 4.8/5.0을 기록하며 공공 서비스 디자인의 성공 사례로 평가받고 있습니다. 60대 이상 사용자의 웹 이용률이 48% 증가하여 디지털 접근성 개선 목표를 달성했습니다.',
+        title: '전략 (HOW)',
+        content: '승객 실행 기능(예매/요금) → 승객 전용 포털로 완전 분리.\n기업 정보(회사소개/정책/프로젝트) → 메인 사이트 중심 재편.',
+        image: 'domain-driven ia reconstruction'
       }
     ]
   },
@@ -132,34 +124,20 @@ const projectsData: { [key: string]: ProjectData } = {
     title: "A Cat's Peaceful Day",
     heroImage: 'miniature cat peaceful scene',
     heroVideo: '/videos/cat.mp4',
-    myRole: ['Art Director', 'Exhibition Planner', 'Concept Designer', 'Photographer'],
-    team: ['1 Art Director', '1 Photographer', '2 Exhibition Designers'],
-    duration: '3개월 (2024.06 - 2024.09)',
-    industry: 'Art / Exhibition / Figure Design',
-    summary: '고양이의 평화로운 일상을 미니어처 피규어와 디오라마로 표현한 컨셉 아트 프로젝트입니다. 12개의 시간대별 장면을 제작하여 전시를 기획하고, 피규어 컨셉 샷 촬영 및 전시 공간 디자인을 총괄했습니다.',
+    myRole: ['Art Director'],
+    team: ['Photographer\n(박소현, 본인, 강민진, 송예준)'],
+    duration: '1개월',
+    industry: 'Art / Figure Design',
+    summary: '낚시하는 고양이 피규어를 통해 작고 평화로운 하루를 "미니어처 세계"로 표현하는 촬영 프로젝트입니다. 거울을 연못처럼 사용한 반사 연출과 색/톤/각도 조정으로 피규어 세계가 실재감 있게 보이는 이미지를 완성했습니다.',
     sections: [
       {
-        title: 'Concept',
-        content: '바쁜 현대인들에게 고양이의 느린 시간, 평화로운 일상을 통해 힐링을 전달하고자 했습니다. 아침 햇살 아래 기지개 켜는 고양이, 창가에서 낮잠 자는 모습, 저녁 노을을 바라보는 장면 등 12개의 시간대별 스토리를 미니어처로 구현했습니다. 각 장면은 5cm 크기의 피규어를 중심으로 실제 사물을 1/12 스케일로 축소한 디오라마입니다.',
+        title: '의도 (Why)',
+        content: '거울을 물 표면처럼 사용하는 레퍼런스를 보고, 작은 세계가 실제 공간처럼 보이게 연출하고자 했습니다. 그래서 "낚시하는 고양이" 장면을 여유로운 하루의 미니어처 풍경으로 구현했습니다.',
       },
       {
-        title: 'Production',
-        content: '피규어는 레진 아트 기법으로 제작하고, 디오라마는 실제 나무, 천, 종이 등 자연 소재를 사용했습니다. 각 장면의 조명은 시간대별 자연광을 재현하기 위해 색온도를 세밀하게 조정했습니다. 아침은 5000K의 차가운 빛, 낮은 6500K의 밝은 백색광, 저녁은 3000K의 따뜻한 오렌지빛으로 연출했습니다.',
+        title: '방법 (How)',
+        content: '거울을 연못/강처럼 보이게 활용했습니다. 인조 잔디·나무 피규어로 자연 풍경을 구성했습니다. 샷마다 물/하늘 색을 조정해 고양이 피규어가 가장 먼저 눈에 들어오도록 시선 흐름을 정리했습니다.',
         image: 'miniature diorama scene'
-      },
-      {
-        title: 'Photography',
-        content: '매크로 렌즈로 피규어를 촬영하여 실제 고양이처럼 보이도록 했습니다. 얕은 심도로 배경을 흐리게 처리하고, 자연광과 인공 조명을 혼합하여 따뜻하고 감성적인 분위기를 연출했습니다. 총 120장의 컨셉 샷을 촬영했으며, 각 사진에는 짧은 시적인 문구를 더해 스토리텔링을 강화했습니다.',
-        image: 'photography macro cat figure'
-      },
-      {
-        title: 'Exhibition Design',
-        content: '전시 공간은 "고양이의 집"을 컨셉으로 디자인했습니다. 관람객은 작은 창문을 통해 각 장면을 들여다보는 형식으로, 마치 고양이의 세계를 엿보는 듯한 경험을 제공합니다. 벽면에는 대형 컨셉 샷을 전시하고, 중앙에는 12개 디오라마를 원형으로 배치하여 하루의 흐름을 시각화했습니다.',
-        image: 'exhibition space design'
-      },
-      {
-        title: 'Response',
-        content: '서울 성수동에서 2주간 열린 전시에 3,000명 이상이 방문했으며, 인스타그램 해시태그 #고양이의평화로운하루는 5만 개 이상 게시되었습니다. "힐링되는 전시", "디테일이 놀랍다", "시간 가는 줄 몰랐다"는 반응을 얻으며 성공적으로 마무리되었습니다. 이후 부산, 제주에서 순회 전시가 예정되어 있습니다.',
       }
     ]
   }
@@ -381,9 +359,9 @@ export function ProjectDetail({ projectId, onBack, onNavigateToProject, onNaviga
                     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 217, 0, 0.2)'
                   }}>
                     {[
-                      { name: 'Railway Redesign', projectId: 'railway-redesign' },
                       { name: 'HourTaste', projectId: 'hourtaste' },
                       { name: 'NOOK', projectId: 'nook' },
+                      { name: 'Railway Redesign', projectId: 'railway-redesign' },
                       { name: "A Cat's Peaceful Day", projectId: 'cat-peaceful-day' }
                     ].map((proj, idx) => (
                       <a
@@ -594,7 +572,8 @@ export function ProjectDetail({ projectId, onBack, onNavigateToProject, onNaviga
                   marginBottom: '8px',
                   fontFamily: '"SD Greta Sans", "IBM Plex Sans KR", sans-serif',
                   lineHeight: 1.6,
-                  fontWeight: 400
+                  fontWeight: 400,
+                  whiteSpace: 'pre-line'
                 }}>{member}</p>
               ))}
             </div>
@@ -664,7 +643,8 @@ export function ProjectDetail({ projectId, onBack, onNavigateToProject, onNaviga
               lineHeight: 1.8,
               color: 'rgba(255, 255, 255, 0.9)',
               fontFamily: '"SD Greta Sans", "IBM Plex Sans KR", sans-serif',
-              fontWeight: 300
+              fontWeight: 300,
+              whiteSpace: 'pre-line'
             }}>
               {project.summary}
             </p>
