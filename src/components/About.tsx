@@ -498,7 +498,7 @@ export default function About({ onNavigateHome }: AboutProps) {
               }}>
                 <video
                   ref={footerVideoRef}
-                  src="/footer-video2.mp4"
+                  src={`${import.meta.env.BASE_URL}footer-video2.mp4`}
                   muted
                   playsInline
                   loop

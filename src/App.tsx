@@ -237,7 +237,7 @@ function VideoComponent({ onHeightChange }: { onHeightChange?: (height: number) 
           backfaceVisibility: 'hidden'
         }}
       >
-        <source src="/Hero-video.mp4" type="video/mp4" />
+        <source src={`${import.meta.env.BASE_URL}Hero-video.mp4`} type="video/mp4" />
       </video>
       
       {/* 물 효과 제거 */}
@@ -245,7 +245,7 @@ function VideoComponent({ onHeightChange }: { onHeightChange?: (height: number) 
       {/* 모바일에서는 비디오만 표시 */}
       {isMobile && videoRef.current && dimensions.width > 0 && dimensions.height > 0 && (
         <video
-          src="/Hero-video.mp4"
+          src={`${import.meta.env.BASE_URL}Hero-video.mp4`}
           autoPlay
           loop
           muted
@@ -1613,7 +1613,7 @@ function HomePage({ onNavigateToAbout, onNavigateToProject }: { onNavigateToAbou
               }}>
                 <video
                   ref={footerVideoRef}
-                  src="/footer-video.mp4"
+                  src={`${import.meta.env.BASE_URL}footer-video.mp4`}
                   muted
                   playsInline
                   loop
